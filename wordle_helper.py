@@ -33,7 +33,7 @@ def pre_process(processed_file = PROCESSED_FILE, n = NUMBER_OF_LETTERS):
 
 	return char_sets
 
-def find_words(char_sets, include, exclude, green_letters):
+def find_words(char_sets, include, exclude, green_letters, yellow_letters):
 	
 	potential_words = set()
 	if len(include) >= 1:
@@ -55,39 +55,49 @@ def find_words(char_sets, include, exclude, green_letters):
 
 		potential_words = {word for word in potential_words if word[idx] == char}
 
+	for yellow_letter in yellow_letters:
+		idx = int(yellow_letter[0])
+		char = yellow_letter[1]
+
+		potential_words = {word for word in potential_words if word[idx] != char}
+
 
 	print(potential_words)
 
-	
-def driver(char_sets):
 
+def run_driver(char_sets):
 	try_again = 'Y'
 	included = []
 	excluded = []
 	found_green = []
-	
+	found_yellow = []
+
 	while(try_again.lower() != 'n'):
-		include = input("Enter new letters to include without spaces (include green). [Already included : {}] [E.g. -- ro] : ".format(included))
-		exclude = input("enter letters to exclude without spaces.[Already excluded : {}] [E.g. xy] : ".format(excluded))
+		word_entered = input("Enter word you entered : ")
+		colors = input("Enter the colors for each letter. Use key (x) for grey, (y) for yellow and (g) for green. No spaces e.g. xyxxgx :")
+		
+		# Sanity
+		if len(word_entered) != len(colors):
+			print("Sorry, the number of characters did not match. Try again")
+			continue
 
-		green_letters = input("enter idx and letters found. space separated. Start with 0. [Already found : {}] [E.g. 0r 1o 2b for rob__] :".format(found_green))
+		for idx in range(len(word_entered)):
+			if colors[idx].lower() == 'x':
+				excluded.append(word_entered[idx])
+			elif colors[idx].lower() == 'y':
+				found_yellow.append([idx, word_entered[idx]])
+				included.append(word_entered[idx])
+			elif colors[idx].lower() == 'g':
+				found_green.append([idx, word_entered[idx]])
+				included.append(word_entered[idx])
 
-		if include:
-			included.extend(list(include.strip()))
-		if exclude:
-			excluded.extend(exclude.strip())
-		if green_letters:
-			print(green_letters)
-			found_green.extend(green_letters.split(' '))
-
-		find_words(char_sets, included, excluded, found_green)
-
+		find_words(char_sets, included, excluded, found_green, found_yellow)
 		try_again = input("Continue playing? y/n : ")
 
 
 def main():
 	char_sets = pre_process()
-	driver(char_sets)
+	run_driver(char_sets)
 
 
 if __name__ == '__main__':
